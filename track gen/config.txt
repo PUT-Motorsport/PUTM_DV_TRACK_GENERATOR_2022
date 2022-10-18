@@ -1,0 +1,48 @@
+#########################################################################################
+#                                        CONFIG											#
+# 1. Config is case sensitive															#
+# 2. Everything after # sign is regarded as a comment		 							#
+# 3. Lines without a = sign are regarded as invalid and ignored							#
+# 4. Lines begining or ending with a = sing are regarded as invalid and ignored			#
+#########################################################################################
+
+# SplineMaxGradient - (angle in deg) angle between two points - used for Spline render 
+# algorithms to estimate how smooth the angles should look. The algorithm uses atan2() 
+# to estimate the angle, so if assigned 0 the algorithm will assume it to be near 
+# infinite. 5 seems good enough.
+
+SplineMaxGradient = 5
+
+# Spline lenght aproximation method
+# - LineSplit		:splits line into segments and roughly aproximates splines lenght
+
+SplineLenghtApproximationAlgorithm = LineSplit
+
+# SplineRenderSegmentationAlgorithm - Spline render segmentation count aproximation method
+#	LookAhead		:looks ahead and scales the distance as long as the gradient between
+#					 vectors points is less than "SplineMaxGradient"
+#	Tree			:uses a binary tree search algorithm to find leafs with the gradient
+#					 between them smaller than the "SplineMaxGradient"
+#	Constant		:ignores "SplineMaxGradient" and straight up divide it into 100 
+#					 points 
+
+SplineRenderSegmentationAlgorithm = LookAhead
+
+# (WIP) DebugConsoleOn - Cosole shows algorithm states and so on, takes: true/false or 1/0
+
+DebugConsoleOn = true
+
+# SplineOptimizationError - the spline optimazation algorithm takes five points, "pivot1",
+# "begin", "middle", "end" and "pivot2". After that it looks for a point matching to the 
+# middle point between the begin and end using the spline algorithm.
+
+SplineOptimizationError = 0.2
+
+# Spline Pivot Point Density
+
+SplinePivotPointCountMin = 10
+SplinePivotPointCountMax = 20
+
+# Pivot point collapse chance - form 0.0 to 1.0
+
+PivotPointCollapseChance = 0.333333

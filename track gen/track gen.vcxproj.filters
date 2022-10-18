@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Interfaces">
+      <UniqueIdentifier>{e901908f-9b67-412f-8f67-d6b9e88d1e08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Screens">
+      <UniqueIdentifier>{b0512268-58de-494a-86d1-26aebfba95cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Spline">
+      <UniqueIdentifier>{7aa25ee2-2d1b-45c3-aa59-a759c05c2261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{fa8a82ed-e971-42e7-b59c-3c4002467c42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SplineGenerators">
+      <UniqueIdentifier>{100dd664-c704-496f-a642-6976f11d2092}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SplineGenerators">
+      <UniqueIdentifier>{4d750474-31d7-4c76-bb5d-77649638b237}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Spline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapeCollapseSplineGenerator.cpp">
+      <Filter>Source Files\SplineGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="ISplineGenerator.cpp">
+      <Filter>Source Files\SplineGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Functions.inl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISplineGenerator.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="IScreen.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Spline.h">
+      <Filter>Header Files\Spline</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFunctionCollapseSplineGenerator.h">
+      <Filter>Header Files\SplineGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFindingSplineGenerator.h">
+      <Filter>Header Files\SplineGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoiseCollapseSplineGenerator.h">
+      <Filter>Header Files\SplineGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="IConeGenerator.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Cone.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeCollapseSplineGenerator.h">
+      <Filter>Header Files\SplineGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="SplineGenerators.h">
+      <Filter>Header Files\SplineGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="config.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

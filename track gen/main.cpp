@@ -23,7 +23,7 @@ sf::Vector2f genRectangle(sf::Vector2f vec);
 
 const float circleR = 300.f;
 
-ISplineGenerator* gen = new ShapeCollapseSplineGenerator(genRectangle);//genRectangle genCircle
+ISplineGenerator* gen = new ShapeCollapseSplineGenerator(genCircle);//genRectangle genCircle
 
 int main()
 {

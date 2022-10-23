@@ -198,12 +198,12 @@ void Spline::optimize()
 	//erase overlapping
 	while (j < pivot_points.size())
 	{
-		bool match = false;
-
 		size_t i = 1;
-		if (j + i < pivot_points.size() && overlap(pivot_points[j], pivot_points[j + i], 0.001)) match = true; //pivot_points[j] == pivot_points[j + i]
-		while (j + i < pivot_points.size() && overlap(pivot_points[j], pivot_points[j + i], 0.001)) i++; //pivot_points[j] == pivot_points[j + i]
-		if (match) pivot_points.erase(pivot_points.begin() + j, pivot_points.begin() + j + i - 1);
+		if (j + i < pivot_points.size() && overlap(pivot_points[j], pivot_points[j + i], 0.001))
+		{
+			while (j + i < pivot_points.size() && overlap(pivot_points[j], pivot_points[j + i], 0.001)) i++; //pivot_points[j] == pivot_points[j + i]
+			pivot_points.erase(pivot_points.begin() + j, pivot_points.begin() + j + i - 1);
+		}
 		j++;
 	}
 	if (overlap(pivot_points.front(), pivot_points.back(), 0.001)) pivot_points.erase(pivot_points.end() - 1);

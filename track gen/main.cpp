@@ -7,8 +7,11 @@
 
 #include "Config.h"
 #include "Spline.h"
+#include "Cone.h"
 #include "SplineGenerators.h"
 #include "Functions.inl"
+#include "XMLConeFileWriter.h"
+#include "CSVConeFileWriter.h"
 
 void mouseMovedAndRightClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos);
 void mouseMovedAndLeftClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos, Spline& spline);
@@ -166,6 +169,29 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
         pressed[sf::Keyboard::F5] = true;
     }
     else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F5) && pressed[sf::Keyboard::F5]) pressed[sf::Keyboard::F5] = false;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F6) && !pressed[sf::Keyboard::F6])
+    {
+        IFileWriter* file_writer = new CSVConeFileWriter;
+
+        std::vector < void* > data;
+
+        for (int i = 0; i < 10; i++)
+        {
+            data.push_back(new Cone(Type::Left, { float(i), float(i) }));
+        }
+        for (int i = 10; i < 20; i++)
+        {
+            data.push_back(new Cone(Type::Right, { float(i), float(i) }));
+        }
+
+        file_writer->open("test.csv");
+        file_writer->writeMultiple(data);
+        file_writer->close();
+
+        delete file_writer;
+        for (auto ptr : data) delete ptr;
+    }
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F6) && pressed[sf::Keyboard::F6]) pressed[sf::Keyboard::F6] = false;
 }
 
 sf::Vector2f genCircle(sf::Vector2f vec)

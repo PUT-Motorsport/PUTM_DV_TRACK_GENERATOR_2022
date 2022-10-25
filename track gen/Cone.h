@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/System.hpp>
+#include <string>
 
 enum class Type
 {
@@ -10,9 +11,11 @@ enum class Type
 
 struct Cone
 {
+	Cone();
 	//explicit Cone(Type type) : type(type) { }
+	Cone(Type type, sf::Vector2f pos) : type(type), pos(pos) { };
 
-	const Type type;
+	Type type;
 	
 	sf::Vector2f pos;
 };

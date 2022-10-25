@@ -31,6 +31,18 @@
     <Filter Include="Header Files\SplineGenerators">
       <UniqueIdentifier>{4d750474-31d7-4c76-bb5d-77649638b237}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ConesGenerators">
+      <UniqueIdentifier>{c3bb9eac-b0f3-4906-9642-d5fa4e1dcfa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileWriters">
+      <UniqueIdentifier>{5df40e71-65a6-4cd3-aceb-8de6e4282eca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{f42ccce3-a056-4601-92be-895fde103165}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileWriters">
+      <UniqueIdentifier>{299808b2-1569-47f8-b1cc-fadf50f20c94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="RandomGenerator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XMLConeFileWriter.cpp">
+      <Filter>Source Files\FileWriters</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVConeFileWriter.cpp">
+      <Filter>Source Files\FileWriters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,10 +110,27 @@
     <ClInclude Include="RandomGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IFileWriter.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLConeFileWriter.h">
+      <Filter>Header Files\FileWriters</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVConeFileWriter.h">
+      <Filter>Header Files\FileWriters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataModels.inl">
+      <Filter>Header Files\Models</Filter>
+    </None>
+    <None Include="EnumWrapper.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

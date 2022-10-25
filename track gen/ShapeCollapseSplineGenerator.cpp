@@ -1,6 +1,7 @@
 #include "ShapeCollapseSplineGenerator.h"
-#include "Functions.inl"
 #include "Config.h"
+#include "Functions.inl"
+#include "DataModels.inl"
 
 #include <math.h>
 #include <string>
@@ -79,48 +80,55 @@ void sc::collapseShape()
 
 void sc::firstShapeFilter()
 {
-	//float max_distance = 0.f;
-	////float coef_1 = 1.f;
-	////float coef_2 = 1.f;
+	struct Set
+	{
+		sf::Vector2f* pivot;
+		float lenght;
+		float gradient;
+		float global_cost;
+		float local_cost;/*
+		Set& operator = (const Set set)
+		{
+			pivot = set.pivot;
+			lenght = set.lenght;
+			gradient = set.gradient;
+			global_cost = set.global_cost;
+			local_cost = set.local_cost;
+		}*/
+	};
 
-	//sf::Vector2f shape_center;
+	float max_distance = 0.f;
+	//float coef_1 = 1.f;
+	//float coef_2 = 1.f;
 
-	////pivot, lenght, gradient, cost
-	//std::vector < Quad < sf::Vector2f&, float, float, float > > costs;
-	//costs.resize(track.getPivotPointsCount());
+	sf::Vector2f shape_center;
 
-	//for (auto const pivot : track)
-	//{
-	//	shape_center += pivot;
-	//}
-	//shape_center /= float(track.getPivotPointsCount());
-	//for (int i = 0; i < track.getPivotPointsCount(); i++)
-	//{
-	//	//max_distance += distance(pivot, shape_center);
-	//	auto dist = distance(track[i], shape_center);
-	//	if (dist > max_distance) max_distance = dist;
+	//pivot, lenght, gradient, global cost, local cost
+	std::vector < Set > costs;
+	costs.resize(track.getPivotPointsCount());
 
-	//	//costs[i] = Quad<sf::Vector2f&, float, float, float>(track[i], dist, track.getGradient(i), 0.f );
-	//	costs[i] = { (sf::Vector2f&)(track[i]), dist, track.getGradient(i), 0.f };
-	//	//{
-	//	//	.item1 = (sf::Vector2f&)(track[i]),
-	//	//	.item2 = dist,
-	//	//	.item3 = track.getGradient(i),
-	//	//	.item4 = 0.f
-	//	//};
-	//}
-	//for (int i = 0; i < costs.size(); i++)
-	//{
-	//	int id = i - 1;
-	//	int ii = i + 1;
+	for (auto const pivot : track)
+	{
+		shape_center += pivot;
+	}
+	shape_center /= float(track.getPivotPointsCount());
+	for (int i = 0; i < track.getPivotPointsCount(); i++)
+	{
+		auto dist = distance(track[i], shape_center);
+		if (dist > max_distance) max_distance = dist;
 
-	//	if (id == -1) id = id == costs.size() - 1;
-	//	if (ii == costs.size()) ii = 0;
-	//	auto& costf = costs[ii].item4;
-	//	auto& costb = costs[id].item4;
-	//	auto& [_, len, grad, cost] = costs[i];
-	//	cost = len / max_distance * ((costf + cost + costb) / 3.f) ;
-	//}
+		costs[i] = { &track[i], dist, track.getGradient(i), 0.f, 0.f };
+	}
+	for (int i = 0; i < costs.size(); i++)
+	{
+		int id = i - 1;
+		int ii = i + 1;
 
-
+		if (id == -1) id = id == costs.size() - 1;
+		if (ii == costs.size()) ii = 0;
+		auto& gcostf = costs[ii].global_cost;
+		auto& gcostb = costs[id].global_cost;
+		auto& [_, len, grad, gcost, lcost] = costs[i];
+		lcost = (abs(gcostf - gcost) + abs(gcostf - gcost)) * 0.5f;
+	}
 }

@@ -154,17 +154,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="CSVConeFileWriter.cpp" />
     <ClCompile Include="ISplineGenerator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="ShapeCollapseSplineGenerator.cpp" />
     <ClCompile Include="Spline.cpp" />
+    <ClCompile Include="XMLConeFileWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cone.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="CSVConeFileWriter.h" />
     <ClInclude Include="Functions.inl" />
     <ClInclude Include="IConeGenerator.h" />
+    <ClInclude Include="IFileWriter.h" />
     <ClInclude Include="ISplineGenerator.h" />
     <ClInclude Include="IScreen.h" />
     <ClInclude Include="PathFindingSplineGenerator.h" />
@@ -174,9 +178,14 @@
     <ClInclude Include="Spline.h" />
     <ClInclude Include="SplineGenerators.h" />
     <ClInclude Include="WaveFunctionCollapseSplineGenerator.h" />
+    <ClInclude Include="XMLConeFileWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataModels.inl" />
+    <None Include="EnumWrapper.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

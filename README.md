@@ -4,13 +4,13 @@ A program which generates random tracks and cones. Program uses a config file (c
 ## Main program control
 
 ### Mouse
-Left MB + drag - drag spline pivot points
-Right MB + drag - drag view
-Middle MB - erase / add pivot point
+Left MB + drag - drag spline pivot points <br/>
+Right MB + drag - drag view <br/>
+Middle MB - erase / add pivot point <br/>
 
 ### Keyboard
-F5 - gen track
-F9 - gen cones
-F7 - save cones to file
-F8 - save track to file
-M - measure tool (uses console)
+F5 - gen track <br/>
+F9 - gen cones <br/>
+F7 - save cones to file <br/>
+F8 - save track to file <br/>
+M - measure tool (uses console) <br/>

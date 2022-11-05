@@ -12,6 +12,8 @@
 #include "Functions.inl"
 #include "XMLConeFileWriter.h"
 #include "CSVConeFileWriter.h"
+#include "CSVTrackFileWriter.h"
+#include "UniformConeGenerator.h"
 
 void mouseMovedAndRightClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos);
 void mouseMovedAndLeftClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos, Spline& spline);
@@ -19,33 +21,35 @@ void mouseWheelScrolled(sf::Event& const event, sf::RenderWindow& const window);
 
 void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline);
 
-float total_zoom = 1.f;
-
 sf::Vector2f genCircle(sf::Vector2f vec);
 sf::Vector2f genRectangle(sf::Vector2f vec);
 
-const float circleR = 300.f;
+bool measure = false;
+
+float total_zoom = 1.f;
+
+const float circleR = 50.f;
+
+sf::Vector2f meas_pt1 = { 0.f, 0.f };
+sf::Vector2f meas_pt2 = { 0.f, 0.f };
 
 ISplineGenerator* gen = new ShapeCollapseSplineGenerator(genCircle);//genRectangle genCircle
 
+IConeGenerator* cone_gen = nullptr;// = new UniformConeGenerator;
+
+sf::RenderWindow* w;
+
 int main()
 {
+    int draw_for_cones = -1;
+
     Config::initConfig();
 
     sf::RenderWindow window(sf::VideoMode(1280, 960), "Track Cones Generator");
     window.setFramerateLimit(60);
+    w = &window;
 
     std::vector < sf::Vector2f > spline_points;
-
-    //int how_many = 15;
-    //float r = 300.f;
-    //sf::Vector2f start_vec = { 1280 / 2, 960 / 2 };
-    //float angle = 1 / float(how_many) * M_PI * 2.f;
-    //for (int i = 0; i < how_many; i++)
-    //{
-    //    spline_points.push_back({ sin(angle * i) * r + start_vec.x, cos(angle * i) * r + start_vec.y });
-    //}
-
     gen->generateFullTrack();
 
     Spline spline = gen->getTrack();
@@ -65,6 +69,39 @@ int main()
                 mouseMovedAndRightClicked(event, window, prev_mouse_pos, mouse_pos);
                 mouseMovedAndLeftClicked(event, window, prev_mouse_pos, mouse_pos, spline);
 
+                if (cone_gen != nullptr)
+                {
+                    auto view_pos = window.mapPixelToCoords(sf::Vector2i(mouse_pos));
+                    auto cones = cone_gen->getCones();
+
+                    for (int i = 0; i < cones.size(); i++)
+                    {
+                        if (distance(view_pos, cones[i].pos) < 1.f && cones[i].type == Type::Ctrl1)
+                        {
+                            draw_for_cones = i;
+                            break;
+                        }
+                        else draw_for_cones = -1;
+                    }
+                }
+                if (measure)
+                {
+                    bool found_cone = false;
+                    if (cone_gen != nullptr)
+                    {
+                        auto cones = cone_gen->getCones();
+                        for (auto cone : cones)
+                        {
+                            if (distance(cone.pos, w->mapPixelToCoords(sf::Mouse::getPosition(*w))) < 1.f)
+                            {
+                                meas_pt2 = cone.pos;
+                                found_cone = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 prev_mouse_pos = mouse_pos;
             }
             if (event.type == sf::Event::MouseWheelScrolled)
@@ -79,12 +116,89 @@ int main()
                 {
                     spline.removePivotPoint(index);
                 }
+                else if(sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+                {
+                    auto buff_pivot = spline.getPivotPoints();
+                    size_t index1 = 0;
+                    size_t index2 = 0;
+                    auto dist1 = distance(mouse_pos, buff_pivot[0]);
+                    auto dist2 = distance(mouse_pos, buff_pivot[0]);
+
+                    for (size_t i = 1; i < buff_pivot.size(); i++)
+                    {
+                        auto buff_vec = buff_pivot[i];
+                        auto buff_dist = distance(mouse_pos, buff_vec);
+                        if (buff_dist < dist1)
+                        {
+                            index1 = i;
+                            dist1 = buff_dist;
+                        }
+                    }
+                    for (size_t i = 1; i < buff_pivot.size(); i++)
+                    {
+                        auto buff_vec = buff_pivot[i];
+                        auto buff_dist = distance(mouse_pos, buff_vec);
+                        if (buff_dist < dist2 && i != index1)
+                        {
+                            index2 = i;
+                            dist2 = buff_dist;
+                        }
+                    }
+                    if (index1 < index2) spline.insertPivotPoint(index1 + 1, mouse_pos);
+                    else spline.insertPivotPoint(index2 + 1, mouse_pos);
+                }
             }
             keyPressedManageSplineOptions(event, spline);
         }
 
         window.clear();
         window.draw(spline);
+
+        if (cone_gen != nullptr)
+        {
+            auto cones = cone_gen->getCones();
+
+            for (auto cone : cones)
+            {
+                sf::CircleShape cir;
+                cir.setRadius(0.25f);
+                cir.setOrigin(0.25f, 0.25f);
+                if (cone.type == Type::Right) cir.setFillColor(sf::Color::Color(0xff, 0xa5, 0x00));
+                else if(cone.type == Type::Ctrl1) cir.setFillColor(sf::Color::Color(220, 20, 60));
+                //else if(cone.type == Type::Ctrl2) cir.setFillColor(sf::Color::Color(219, 112, 147));
+                else cir.setFillColor(sf::Color::Color(0x89, 0xcf, 0xf0));
+                cir.setPosition(cone.pos);
+                window.draw(cir);
+            }
+        }
+        if (draw_for_cones != -1)
+        {
+            auto cones = cone_gen->getCones();
+            sf::Vertex line[] =
+            {
+                sf::Vertex(sf::Vector2f(cones[draw_for_cones].pos)),
+                sf::Vertex(sf::Vector2f(cones[draw_for_cones + 1].pos))
+            };
+
+            window.draw(line, 2, sf::Lines);
+
+            line[0] = sf::Vertex(sf::Vector2f(cones[draw_for_cones].pos));
+            line[1] = sf::Vertex(sf::Vector2f(cones[draw_for_cones + 2].pos));
+
+            window.draw(line, 2, sf::Lines);
+        }
+        if (measure)
+        {
+            sf::Vertex line[] =
+            {
+                sf::Vertex(meas_pt1),
+                sf::Vertex(meas_pt2)
+            };
+            window.draw(line, 2, sf::Lines);
+            //system("clc");
+            std::cout << "\r" << distance(meas_pt1, meas_pt2) << "              ";
+        }
+
         window.display();
     }
 
@@ -135,6 +249,8 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
 {
     static bool pressed[sf::Keyboard::KeyCount] = { false };
 
+    auto key = sf::Keyboard::F1;
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1) && !pressed[sf::Keyboard::F1])
     {
         spline.draw_outline_points = !spline.draw_outline_points;
@@ -169,29 +285,81 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
         pressed[sf::Keyboard::F5] = true;
     }
     else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F5) && pressed[sf::Keyboard::F5]) pressed[sf::Keyboard::F5] = false;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F6) && !pressed[sf::Keyboard::F6])
+
+    key = sf::Keyboard::F7;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F7) && !pressed[sf::Keyboard::F7])
     {
-        IFileWriter* file_writer = new CSVConeFileWriter;
+        pressed[key] = true;
 
-        std::vector < void* > data;
-
-        for (int i = 0; i < 10; i++)
+        if (cone_gen != nullptr)
         {
-            data.push_back(new Cone(Type::Left, { float(i), float(i) }));
-        }
-        for (int i = 10; i < 20; i++)
-        {
-            data.push_back(new Cone(Type::Right, { float(i), float(i) }));
-        }
+            CSVConeFileWriter file_writer;
 
-        file_writer->open("test.csv");
-        file_writer->writeMultiple(data);
-        file_writer->close();
-
-        delete file_writer;
-        for (auto ptr : data) delete ptr;
+            file_writer.open(Config::get("ConeCSVFileDestination"));
+            file_writer.writeMultiple(cone_gen->getCones());
+            file_writer.close();
+        }
     }
-    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F6) && pressed[sf::Keyboard::F6]) pressed[sf::Keyboard::F6] = false;
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F7) && pressed[sf::Keyboard::F7]) pressed[sf::Keyboard::F7] = false;
+
+    key = sf::Keyboard::F8;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F8) && !pressed[sf::Keyboard::F8])
+    {
+        pressed[key] = true;
+        CSVTrackFileWriter file_writer;
+
+        file_writer.open(Config::get("TrackCSVFileDestination"));
+        file_writer.write(spline);
+        file_writer.close();
+    }
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F8) && pressed[sf::Keyboard::F8]) pressed[sf::Keyboard::F8] = false;
+
+    key = sf::Keyboard::F9;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+        if (cone_gen != nullptr) delete cone_gen;
+
+        cone_gen = new UniformConeGenerator(spline);
+        cone_gen->generateAllCones();
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+
+    key = sf::Keyboard::M;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+
+        measure = !measure;
+        if (measure)
+        {
+            bool is_any_pt_in_range = false;
+
+            if (cone_gen != nullptr)
+            {
+                auto cones = cone_gen->getCones();
+                for (auto cone : cones)
+                {
+                    if (distance(cone.pos, w->mapPixelToCoords(sf::Mouse::getPosition(*w))) < 1.f)
+                    {
+                        meas_pt1 = cone.pos;
+                        is_any_pt_in_range = true;
+                        break;
+                    }
+                }
+            }
+            if (!is_any_pt_in_range)
+            {
+                meas_pt1 = w->mapPixelToCoords(sf::Mouse::getPosition(*w));
+            }
+        }
+        else
+        {
+            meas_pt1 = { 0.f, 0.f };
+            meas_pt2 = { 0.f, 0.f };
+        }
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
 }
 
 sf::Vector2f genCircle(sf::Vector2f vec)
@@ -201,13 +369,12 @@ sf::Vector2f genCircle(sf::Vector2f vec)
 
 sf::Vector2f genRectangle(sf::Vector2f vec)
 {
-    const float x_size = 200.f;
-    const float y_size = 100.f;
+    const float x_size = 100.f;
+    const float y_size = 50.f;
 
     auto len = lenght(sf::Vector2f( x_size, y_size ));
     float _x = x_size * 0.5f / len;
     float _y = y_size * 0.5f / len;
-    //float r = 1.f;
 
     auto x = std::clamp(vec.x, -_x, _x) * len * 2;
     auto y = std::clamp(vec.y, -_y, _y) * len * 2;

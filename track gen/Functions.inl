@@ -8,32 +8,60 @@
 #include <math.h>
 
 template < class T >
-inline float lenght(sf::Vector2<T> vec)
+inline T lenght(sf::Vector2<T> vec)
 {
-	return sqrtf(float(sq((vec.x)) + sq(vec.y)));
+	return sqrt(float(sq((vec.x)) + sq(vec.y)));
+}
+
+template <>
+inline long double lenght(sf::Vector2<long double> vec)
+{
+	return sqrtl(sq((vec.x)) + sq(vec.y));
 }
 
 template < class T >
-inline float distance(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+inline T distance(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 {
 	auto vec = vec1 - vec2;
-	return sqrtf(float(sq(vec.x) + sq(vec.y)));
+	return sqrt(float(sq(vec.x) + sq(vec.y)));
+}
+
+template <>
+inline long double distance(sf::Vector2<long double> vec1, sf::Vector2<long double> vec2)
+{
+	auto vec = vec1 - vec2;
+	return sqrtl(sq(vec.x) + sq(vec.y));
 }
 
 template < class T >
-inline float dot(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+inline T dot(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 {
 	return float(vec1.x * vec2.x + vec1.y * vec2.y);
 }
 
 template < class T >
-inline float angle(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+inline T dot(sf::Vector2<T> a, sf::Vector2<T> b, sf::Vector2<T> p)
+{
+	return float((p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x));
+}
+
+template < class T >
+inline T angle(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 {
 	auto x = std::clamp(float(dot(vec1, vec2)) / (lenght(vec1) * lenght(vec2)), -1.f, 1.f);
 	return acosf(x);
 }
 
-inline float toRad(float angle)
+template <>
+inline long double angle(sf::Vector2<long double> vec1, sf::Vector2<long double> vec2)
+{
+	long double x = dot(vec1, vec2) / (lenght(vec1) * lenght(vec2));
+	if (x > 1.l) x = 1.l;
+	else if (x < -1.l) x = -1.l;
+	return acosl(x);
+}
+
+inline constexpr float toRad(float angle)
 {
 	return angle * 0.01745329251994329576923690768489f;// / 180.f * M_PI;
 }
@@ -94,4 +122,35 @@ bool overlap(sf::Vector2<T> a, sf::Vector2<T> b, float error)
 {
 	return distance(a, b) <= error;
 }
-//}
+
+inline sf::Vector2f findThirdPoint(sf::Vector2f pos1, float grad1, sf::Vector2f pos2, float grad2)
+{
+	const auto min_angle = 2.f;
+	//if (std::abs(grad1 - grad2) > toRad(360.f - min_angle) || std::abs(grad1 - grad2) < toRad(min_angle)) return { { 0.f, 0.f }, false };
+
+	auto x1 = pos1.x;//0.f;
+	auto y1 = pos1.y;//0.f;
+	auto x2 = pos2.x;//0.f;
+	auto y2 = pos2.y;//0.f;
+	auto alp1 = grad1;//2.f * M_PI / 3.f;
+	auto alp2 = grad2;//M_PI / 6.f;
+	auto u = x2 - x1;
+	auto v = y2 - y1;
+	auto a3 = sqrt(u * u + v * v);
+	auto alp3 = M_PI - alp1 - alp2;
+	auto a2 = a3 * sin(alp2) / sin(alp3);
+	auto rhs1 = x1 * u + y1 * v + a2 * a3 * cos(alp1);
+	auto rhs2 = y2 * u - x2 * v - a2 * a3 * sin(alp1);
+	auto x3 = (1.f / (a3 * a3)) * (u * rhs1 - v * rhs2);
+	auto y3 = (1.f / (a3 * a3)) * (v * rhs1 + u * rhs2);
+
+	return { float(x3), float(y3) };
+}
+
+//template < class T >
+inline int sgnf(float x)
+{
+	if (x > 0.f) return 1;
+	if (x < 0.f) return -1;
+	return 0;
+}

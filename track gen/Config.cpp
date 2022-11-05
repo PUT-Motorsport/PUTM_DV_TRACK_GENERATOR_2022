@@ -48,6 +48,8 @@ void Config::initConfig()
 		key = line.substr(0, equal_index);
 		value = line.substr(equal_index + 1);
 
+		for (char& c : value) if (c == '/') c = ' '; 
+
 		values.emplace(key, value);
 	}
 

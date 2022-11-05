@@ -1,5 +1,7 @@
 #include "Spline.h"
+
 #include "Functions.inl"
+#include "EnumWrapper.inl"
 
 #define _USE_MATH_DEFINES
 
@@ -17,10 +19,10 @@ Spline::Spline() : resolution(1)//, pivot_points(default_points)
 	init();
 }
 
-Spline::Spline(int resolution) : resolution(resolution)//, pivot_points(default_points) 
-{
-	init();
-} 
+//Spline::Spline(int resolution) : resolution(resolution)//, pivot_points(default_points) 
+//{
+//	init();
+//} 
 
 Spline::Spline(std::vector < sf::Vector2f > pivot_points) : resolution(1), pivot_points(pivot_points) 
 {
@@ -32,17 +34,26 @@ Spline::Spline(std::vector < sf::Vector2f > pivot_points, bool looped) : resolut
 	init();
 }
 
-Spline::Spline(std::vector < sf::Vector2f > pivot_points, int resolution) : resolution(resolution), pivot_points(pivot_points) 
+Spline::Spline(std::vector < sf::Vector2f > pivot_points, bool looped, bool segment) : resolution(1), looped(looped), pivot_points(pivot_points)
 {
 	init();
+	if (segment)
+	{
+		this->segment();
+	}
 }
+
+//Spline::Spline(std::vector < sf::Vector2f > pivot_points, int resolution) : resolution(resolution), pivot_points(pivot_points) 
+//{
+//	init();
+//}
 
 void Spline::setAproximationAlgorithm(AproximationAlgorithm algorithm)
 {
 	switch (algorithm)
 	{
-		case AproximationAlgorithm::LineSplit: aproximaion_algorithm = &Spline::lineSplitLenght; break;
-		case AproximationAlgorithm::QubedVectorLenght: aproximaion_algorithm = &Spline::vectorLenghtQubedLenght; break;
+		case AproximationAlgorithm::LineSplit: aproximaionAlgorithmPtr = &Spline::vectorLenghtSum; break;
+		//case AproximationAlgorithm::QubedVectorLenght: aproximaion_algorithm = &Spline::vectorLenghtQubedLenght; break;
 		default: return;
 	}
 }
@@ -51,9 +62,9 @@ void Spline::setSegmentingAlgorithm(SegmentingAlgorithm algorithm)
 {
 	switch (algorithm)
 	{
-		case SegmentingAlgorithm::LookAhead: segmenting_algorithm = &Spline::lookAheadSegmenting; break;
-		case SegmentingAlgorithm::Tree: segmenting_algorithm = &Spline::treeSegmenting; break;
-		case SegmentingAlgorithm::Constant: segmenting_algorithm = &Spline::constantSegementing; break;
+		case SegmentingAlgorithm::LookAhead: segmentingAlgorithmPtr = &Spline::lookAheadSegmenting; break;
+		//case SegmentingAlgorithm::Tree: segmenting_algorithm = &Spline::treeSegmenting; break;
+		//case SegmentingAlgorithm::Constant: segmenting_algorithm = &Spline::constantSegementing; break;
 		default: return;
 	}
 }
@@ -76,20 +87,12 @@ void Spline::setWidth(float width)
 	this->width = width;
 }
 
-void Spline::constantSegementing(std::array < sf::Vector2f, 4 > segment) const
+void Spline::constantSegementing() const
 {
-	for (float t = 0.f; t < 1.f; t += 0.001f)
-	{
-		auto g = getSplineGradient(segment, t);
-		spline_point_representation.push_back({ getSplinePoint(segment, t), { g.x, g.y }, atan2f(-g.y, g.x) });
-	}
 
-	auto p = pivot_points.end() - 2;
-	auto g = getSplineGradient({ *(p - 2), *(p - 1), *(p - 0), *(p + 1) }, 1.f);
-	spline_point_representation.push_back({ pivot_points[pivot_points.size() - 2], { g.x, g.y }, atan2f(-g.y, g.x) });
 }
 
-void Spline::treeSegmenting(std::array < sf::Vector2f, 4 > segment) const
+void Spline::treeSegmenting() const
 {
 
 }
@@ -120,45 +123,55 @@ void Spline::removePivotPoint(size_t first, size_t last)
 	highlight_pivot_point = -1;
 }
 
-void Spline::lookAheadSegmenting(std::array < sf::Vector2f, 4 > segment) const
+void Spline::lookAheadSegmenting() const
 {
-	float t = 0.f;
-	
-	if (spline_point_representation.size() == 0)
+	float t_size = getT();
+	for (size_t t = 0; t < t_size; t++)
 	{
-		auto buff = getSplineGradient(segment, t);
-		spline_point_representation.push_back({ getSplinePoint(segment, 0.f), {buff.x, buff.y}, atan2f(-buff.y, buff.x)});
-	}
+		float lt = 0.f;
 
-	while (t < 1.0f)
-	{
-		auto step = 0.f;
-		auto step_step = 0.05f;
-
-		auto grad_s_vec = getSplineGradient(segment, t + step);
-		auto grad_t_vec = spline_point_representation.back().gradient_vector;
-
-		float grad = angle(grad_t_vec, grad_s_vec);
-		while (grad < max_gradient)
+		if (point_representation.size() == 0)
 		{
-			step += step_step;
-			grad = angle(getSplineGradient(segment, t + step), spline_point_representation.back().gradient_vector);
-			step_step *= 2.f;
+			auto grad_vec = getGradientVector(0, 0.f);
+			point_representation.push_back({ getPoint(0, 0.f), {grad_vec.x, grad_vec.y}, atan2f(-grad_vec.y, grad_vec.x) });
 		}
-		step_step *= 0.5;
-		while (step_step > 0.001f)
-		{
-			if (grad > max_gradient) step -= step_step;
-			else step += step_step;
-			grad = angle(getSplineGradient(segment, t + step), spline_point_representation.back().gradient_vector);
-			step_step *= 0.5;
-		}
-		if (t + step < 1.f) t += step;
-		else t = 1.f;
 
-		auto g = getSplineGradient(segment, t);
-		spline_point_representation.push_back({ getSplinePoint(segment, t), { g.x, g.y }, atan2f(-g.y, g.x) });
+		while (lt < 1.f)
+		{
+			auto step = 0.f;
+			auto step_step = 0.05f;
+
+			auto grad_s_vec = getGradientVector(t, lt + step);
+			auto grad_t_vec = point_representation.back().gradient_vector;
+
+			float grad = angle(grad_t_vec, grad_s_vec);
+			while (grad < max_gradient && lt + step < 1.f)
+			{
+				step += step_step;
+				grad = angle(getGradientVector(t, lt + step), point_representation.back().gradient_vector);
+				step_step *= 2.f;
+			}
+			step_step *= 0.5f;
+			while (step_step > 0.001f)
+			{
+				if (grad > max_gradient) step -= step_step;
+				else step += step_step;
+				grad = angle(getGradientVector(t, lt + step), point_representation.back().gradient_vector);
+				step_step *= 0.5f;
+			}
+			if (lt + step < 1.f) lt += step;
+			else lt = 1.f;// 0.99999994f;
+
+			auto g = getGradientVector(t, lt);
+			point_representation.push_back({ getPoint(t, lt), { g.x, g.y }, atan2f(-g.y, g.x) });
+		}
 	}
+}
+
+void Spline::insertPivotPoint(size_t at, sf::Vector2f new_pos)
+{
+	pivot_points.insert(pivot_points.begin() + at, new_pos);
+	changed = true;
 }
 
 int Spline::mouseEnteredPivotPoint(sf::Vector2f mouse_pos)
@@ -166,7 +179,7 @@ int Spline::mouseEnteredPivotPoint(sf::Vector2f mouse_pos)
 	for (size_t i = 0; i < pivot_points.size(); i++)
 	{
 		auto len = distance(pivot_points[i], mouse_pos);
-		if (len <= 5.f)
+		if (len <= this->width * 0.3 * 2.f)
 		{
 			return i;
 		}
@@ -179,7 +192,7 @@ int Spline::mouseEnteredPivotPoint(sf::Vector2f mouse_pos, bool highlight)
 	for (size_t i = 0; i < pivot_points.size(); i++)
 	{
 		auto len = distance(pivot_points[i], mouse_pos);
-		if (len <= 5.f)
+		if (len <= this->width * 0.3 * 2.f)
 		{
 			highlight_pivot_point = i;
 			return highlight_pivot_point;
@@ -189,7 +202,6 @@ int Spline::mouseEnteredPivotPoint(sf::Vector2f mouse_pos, bool highlight)
 	return highlight_pivot_point;
 }
 
-//basicOptimize
 void Spline::optimize()
 {
 	const float error = 0.001f;
@@ -237,11 +249,15 @@ void Spline::optimize()
 	changed = true;
 }
 
-//line fit optimazation
-
 void Spline::forceHighlight(size_t index)
 {
 	highlight_pivot_point = index;
+}
+
+void Spline::segment() const
+{
+	point_representation.clear();
+	segmentingAlgorithm();
 }
 
 void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -250,34 +266,36 @@ void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 	if (changed)
 	{
-		spline_point_representation.clear();
+		point_representation.clear();
 
-		if (looped)
-		{
-			for (int i = 0; i < pivot_points.size(); i++)
-			{
-				std::array < int, 3 > ii = { i + 1, i + 2, i + 3 };
-				for(auto& j : ii) if (j >= pivot_points.size()) j -= pivot_points.size();
+		//if (looped)
+		//{
+		//	for (int i = 0; i < pivot_points.size(); i++)
+		//	{
+		//		std::array < int, 3 > ii = { i + 1, i + 2, i + 3 };
+		//		for(auto& j : ii) if (j >= pivot_points.size()) j -= pivot_points.size();
 
-				(this->*segmenting_algorithm)({ pivot_points[i], pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]] });
-			}
-		}
-		else
-		{
-			for (int i = 0; i + 3 < pivot_points.size(); i++)
-			{
-				std::array < int, 3 > ii = { i + 1, i + 2, i + 3 };
+		//		(this->*segmenting_algorithm)({ pivot_points[i], pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]] });
+		//	}
+		//}
+		//else
+		//{
+		//	for (int i = 0; i + 3 < pivot_points.size(); i++)
+		//	{
+		//		std::array < int, 3 > ii = { i + 1, i + 2, i + 3 };
 
-				(this->*segmenting_algorithm)({ pivot_points[i], pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]] });
-			}
-		}
+		//		(this->*segmenting_algorithm)({ pivot_points[i], pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]] });
+		//	}
+		//}
+
+		segmentingAlgorithm();
 
 		spline.clear();
-		spline.resize(spline_point_representation.size() * 2);
+		spline.resize(point_representation.size() * 2);
 
-		for (int j = 0; j < spline_point_representation.size() * 2; j += 2)
+		for (int j = 0; j < point_representation.size() * 2; j += 2)
 		{
-			auto [vec, _, grad] = spline_point_representation[j / 2];
+			auto [vec, _, grad] = point_representation[j / 2];
 
 			spline[j].position = { vec.x + sin(grad) * -width, vec.y + cos(grad) * -width };
 			spline[j + 1].position = { vec.x + sin(grad) * width, vec.y + cos(grad) * width };
@@ -286,14 +304,16 @@ void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		changed = false;
 	}
 
+	auto cir_w = this->width * 0.3;
+
 	target.draw(spline);
 	if (draw_segmentation_points)
 	{
 		sf::CircleShape cir;
 		cir.setFillColor(sf::Color::Blue);
-		cir.setRadius(2.f);
-		cir.setOrigin(2.f, 2.f);
-		for (auto vex : spline_point_representation)// int i = 0; i < spline_point_representation.size(); i++)
+		cir.setRadius(cir_w);
+		cir.setOrigin(cir_w, cir_w);
+		for (auto vex : point_representation)// int i = 0; i < point_representation.size(); i++)
 		{
 			cir.setPosition(vex.position);
 			target.draw(cir);
@@ -303,15 +323,15 @@ void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		sf::CircleShape cir;
 		cir.setFillColor(sf::Color::Cyan);
-		cir.setRadius(2.f);
-		cir.setOrigin(2.f, 2.f);
-		for (auto [vec, _, grad] : spline_point_representation)
+		cir.setRadius(cir_w);
+		cir.setOrigin(cir_w, cir_w);
+		for (auto [vec, _, grad] : point_representation)
 		{
 			cir.setPosition({ vec.x + sin(grad) * -width, vec.y + cos(grad) * -width });
 			target.draw(cir);
 		}
 		cir.setFillColor(sf::Color::Yellow);
-		for (auto [vec, _, grad] : spline_point_representation)
+		for (auto [vec, _, grad] : point_representation)
 		{
 			cir.setPosition({ vec.x + sin(grad) * width, vec.y + cos(grad) * width });
 			target.draw(cir);
@@ -321,8 +341,8 @@ void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		sf::CircleShape cir;
 		cir.setFillColor(sf::Color::Red);
-		cir.setRadius(2.f);
-		cir.setOrigin(2.f, 2.f);
+		cir.setRadius(cir_w);
+		cir.setOrigin(cir_w, cir_w);
 		for (auto pt : pivot_points)
 		{
 			cir.setPosition(pt);
@@ -333,33 +353,11 @@ void Spline::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		sf::CircleShape cir;
 		cir.setFillColor(sf::Color::Red);
-		cir.setRadius(5.f);
-		cir.setOrigin(5.f, 5.f);
+		cir.setRadius(cir_w * 2.f);
+		cir.setOrigin(cir_w * 2.f, cir_w * 2.f);
 		cir.setPosition(pivot_points[highlight_pivot_point]);
 		target.draw(cir);
 	}
-}
-
-template <>
-AproximationAlgorithm Spline::toEnum(std::string name)
-{
-	if (name == "LineSplit") return AproximationAlgorithm::LineSplit;
-	if (name == "VectorLenghtQubed") return AproximationAlgorithm::QubedVectorLenght;
-	return AproximationAlgorithm::UnDefined;
-}
-
-template <>
-SegmentingAlgorithm Spline::toEnum(std::string name)
-{
-	if (name == "LookAhead") return SegmentingAlgorithm::LookAhead;
-	if (name == "Tree") return SegmentingAlgorithm::Tree;
-	if (name == "Constant") return SegmentingAlgorithm::Constant;
-	return SegmentingAlgorithm::UnDefined;
-}
-
-int Spline::aproximateSegmentation(std::array < sf::Vector2f, 4 > segment) const
-{
-	return 0;
 }
 
 //float Spline::splineIntegral()
@@ -370,6 +368,69 @@ int Spline::aproximateSegmentation(std::array < sf::Vector2f, 4 > segment) const
 size_t Spline::getPivotPointsCount()
 {
 	return pivot_points.size();
+}
+
+size_t Spline::getPointsCount()
+{
+	return point_representation.size();
+}
+
+sf::Vector2f Spline::getPivotPoint(size_t index) const
+{
+	return pivot_points[index];
+}
+
+sf::Vector2f Spline::getPoint(size_t index) const
+{
+	return point_representation[index].position;
+}
+
+sf::Vector2f Spline::getPoint(size_t index, float t) const
+{
+	auto [a, b, c, d] = getSegment(index);
+
+	float t2 = t * t;
+	float t3 = t2 * t;
+
+	float q1 = -t3 + 2.0f * t2 - t;
+	float q2 = 3.0f * t3 - 5.0f * t2 + 2.0f;
+	float q3 = -3.0f * t3 + 4.0f * t2 + t;
+	float q4 = t3 - t2;
+
+	float tx = 0.5f * (a.x * q1 + b.x * q2 + c.x * q3 + d.x * q4);
+	float ty = 0.5f * (a.y * q1 + b.y * q2 + c.y * q3 + d.y * q4);
+
+	return { tx, ty };
+}
+
+sf::Vector2f Spline::getGradientVector(size_t index) const
+{
+	return point_representation[index].gradient_vector;
+}
+
+sf::Vector2f Spline::getGradientVector(size_t index, float t) const
+{
+	auto [a, b, c, d] = getSegment(index);
+
+	float t2 = t * t;
+
+	float q1 = -3.f * t2 + 4.f * t - 1;
+	float q2 = 9.f * t2 - 10.f * t;
+	float q3 = -9.f * t2 + 8.f * t + 1.f;
+	float q4 = 3.f * t2 - 2.f * t;
+
+	float tx = 0.5f * (a.x * q1 + b.x * q2 + c.x * q3 + d.x * q4);
+	float ty = 0.5f * (a.y * q1 + b.y * q2 + c.y * q3 + d.y * q4);
+
+	return { tx, ty };
+}
+
+sf::Vector2f Spline::getCenter()
+{
+	sf::Vector2f center;
+	for (auto& pt : point_representation) center += pt.position;
+	center = center / float(point_representation.size());
+	return center;
 }
 
 sf::Vector2f& Spline::operator [] (size_t index)
@@ -387,74 +448,53 @@ std::vector < sf::Vector2f >::iterator Spline::end()
 	return pivot_points.end();
 }
 
-float Spline::lineSplitLenght(std::array < sf::Vector2f, 4 > segment) const
+float Spline::vectorLenghtSum() const
 {
-	//auto& [a, b, c, d] = segment;
-	//
-	//float start = 0.f;
-	//float end = 1.f;
-
-	//std::stack < std::pair < float, float > > stack;
-
-	//std::list < float > 
-
-	return 0.f;
-}
-
-float Spline::vectorLenghtQubedLenght(std::array < sf::Vector2f, 4 > segment) const
-{
-	auto& [a, b, c, d] = segment;
-
-	sf::Vector2f buff = { std::abs(b.x - c.x), std::abs(b.y - c.y) };
-
-	return buff.x * buff.x + buff.y * buff.y;
-}
-
-float Spline::getGradient(size_t index)
-{
-	if (looped)
+	float lenght = 0.f;
+	for (auto point = point_representation.begin(); point != point_representation.end() - 1; point++)
 	{
-		std::array < int, 3 > ii = { index + 1, index + 2, index + 3 };
-		for (auto& j : ii) if (j >= pivot_points.size()) j -= pivot_points.size();
-		auto vec = getSplineGradient({ pivot_points[index], pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]] }, 0.f);
-		return atan2f(-vec.y, vec.x);
+		auto fpoint = point + 1;
+		lenght += distance(point->position, fpoint->position);
 	}
-
-	//TODO: implement for not looped;
-	return 0.f;
+	if (looped) lenght += distance(point_representation.front().position, point_representation.back().position);
+	return lenght;
 }
 
-sf::Vector2f Spline::getSplinePoint(std::array < sf::Vector2f, 4 > segment, float t) const
+float Spline::getGradient(size_t index) const
 {
-	auto& [a, b, c, d] = segment;
-
-	float t2 = t * t;
-	float t3 = t2 * t;
-
-	float q1 = -t3 + 2.0f * t2 - t;
-	float q2 = 3.0f * t3 - 5.0f * t2 + 2.0f;
-	float q3 = -3.0f * t3 + 4.0f * t2 + t;
-	float q4 = t3 - t2;
-
-	float tx = 0.5f * (a.x * q1 + b.x * q2 + c.x * q3 + d.x * q4);
-	float ty = 0.5f * (a.y * q1 + b.y * q2 + c.y * q3 + d.y * q4);
-
-	return { tx, ty };
+	return point_representation[index].gradient;
 }
 
-sf::Vector2f Spline::getSplineGradient(std::array < sf::Vector2f, 4 > segment, float t) const
+float Spline::getGradient(size_t index, float t) const
 {
-	auto& [a, b, c, d] = segment;
+	auto vec = getGradientVector(index, t);
+	return atan2f(-vec.y, vec.x);
+}
 
-	float t2 = t * t;
+size_t Spline::getT() const
+{
+	if (looped) return pivot_points.size();
+	return pivot_points.size() - 3.f;
+}
 
-	float q1 = -3.f * t2 + 4.f * t - 1;
-	float q2 = 9.f * t2 - 10.f * t;
-	float q3 = -9.f * t2 + 8.f * t + 1.f;
-	float q4 = 3.f * t2 - 2.f * t;
+float Spline::getLenght()
+{
+	return aproximaionAlgorithm();
+}
 
-	float tx = 0.5f * (a.x * q1 + b.x * q2 + c.x * q3 + d.x * q4);
-	float ty = 0.5f * (a.y * q1 + b.y * q2 + c.y * q3 + d.y * q4);
+std::vector < SplinePoint > Spline::getPointRepresenation()
+{
+	return point_representation;
+}
 
-	return { tx, ty };
+std::vector < sf::Vector2f > Spline::getPivotPoints()
+{
+	return pivot_points;
+}
+
+std::array < sf::Vector2f, 4 > Spline::getSegment(size_t i) const
+{
+	std::array < size_t, 4 > ii = { i,  i + 1, i + 2, i + 3 };
+	if (looped) for (auto& j : ii) if (j >= pivot_points.size()) j -= pivot_points.size();
+	return { pivot_points[ii[0]], pivot_points[ii[1]], pivot_points[ii[2]], pivot_points[ii[3]] };
 }

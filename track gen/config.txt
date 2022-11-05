@@ -14,9 +14,9 @@
 SplineMaxGradient = 5
 
 # Spline lenght aproximation method
-# - LineSplit		:splits line into segments and roughly aproximates splines lenght
+# - SegmentSplit		:uses the raw vectors computed by draw algorithm 
 
-SplineLenghtApproximationAlgorithm = LineSplit
+SplineLenghtApproximationAlgorithm = SegmentSplit
 
 # SplineRenderSegmentationAlgorithm - Spline render segmentation count aproximation method
 #	LookAhead		:looks ahead and scales the distance as long as the gradient between
@@ -32,13 +32,11 @@ SplineRenderSegmentationAlgorithm = LookAhead
 
 DebugConsoleOn = true
 
-# SplineOptimizationError - the spline optimazation algorithm takes five points, "pivot1",
-# "begin", "middle", "end" and "pivot2". After that it looks for a point matching to the 
-# middle point between the begin and end using the spline algorithm.
+# (WIP) SplineOptimizationError 
 
 SplineOptimizationError = 0.2
 
-# Spline Pivot Point Density
+# (WIP) Spline Pivot Point Density
 
 SplinePivotPointCountMin = 10
 SplinePivotPointCountMax = 20
@@ -46,3 +44,19 @@ SplinePivotPointCountMax = 20
 # Pivot point collapse chance - form 0.0 to 1.0
 
 PivotPointCollapseChance = 0.333333
+
+# Maximum and Minimum distance between cones [m]
+
+MaxConeDistance = 5
+MinConeDistance = 1
+
+# Track Width [m]
+
+TrackWidth = 3
+
+# Cones CSV file destination
+# !!! cuz ima lazy and it was easier to implement all spaces are erased
+# so if u need a space type '/' instead
+
+ConeCSVFileDestination = C:\Users\pile\Desktop\cones/test.csv
+TrackCSVFileDestination = C:\Users\pile\Desktop\track/test.csv

@@ -15,23 +15,23 @@ void fw::close()
 	csv_file.close();
 }
 
-void fw::write(Cone* data)
+void fw::write(Cone data)
 {
-	std::string type = data->type == Type::Right ? "yellow" : "blue";
-	csv_file << data->pos.x << ";" << data->pos.y << ";" << type << "\n";
+	std::string type = data.type == Type::Right ? "yellow" : "blue";
+	csv_file << data.pos.x << ";" << data.pos.y << ";" << type << "\n";
 }
 
-void fw::writeMultiple(std::vector<Cone*> data)
+void fw::writeMultiple(std::vector<Cone> data)
 {
 	for (int i = 0; i < data.size(); i++) write(data[i]);
 }
 
 void fw::write(void* data)
 {
-	write((Cone*)data);
+	write(*(Cone*)data);
 }
 
 void fw::writeMultiple(std::vector<void*> data)
 {
-	for (int i = 0; i < data.size(); i++) write((Cone*)data[i]);
+	for (auto d : data) write(d);
 }

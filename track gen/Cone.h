@@ -6,7 +6,9 @@
 enum class Type
 {
 	Right,
-	Left
+	Left,
+	Ctrl1,
+	Ctrl2,
 };
 
 struct Cone

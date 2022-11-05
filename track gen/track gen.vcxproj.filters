@@ -43,6 +43,9 @@
     <Filter Include="Source Files\FileWriters">
       <UniqueIdentifier>{299808b2-1569-47f8-b1cc-fadf50f20c94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ConeGenerators">
+      <UniqueIdentifier>{d284c828-17d7-4779-9330-07e9d47381a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,12 @@
       <Filter>Source Files\FileWriters</Filter>
     </ClCompile>
     <ClCompile Include="CSVConeFileWriter.cpp">
+      <Filter>Source Files\FileWriters</Filter>
+    </ClCompile>
+    <ClCompile Include="UniformConeGenerator.cpp">
+      <Filter>Source Files\ConeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVTrackFileWriter.cpp">
       <Filter>Source Files\FileWriters</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,6 +126,12 @@
       <Filter>Header Files\FileWriters</Filter>
     </ClInclude>
     <ClInclude Include="CSVConeFileWriter.h">
+      <Filter>Header Files\FileWriters</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformConeGenerator.h">
+      <Filter>Header Files\ConesGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVTrackFileWriter.h">
       <Filter>Header Files\FileWriters</Filter>
     </ClInclude>
   </ItemGroup>

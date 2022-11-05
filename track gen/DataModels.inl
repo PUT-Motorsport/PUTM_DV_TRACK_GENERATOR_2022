@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include <map>
 
 template < class T1, class T2, class T3 >
 struct Triple

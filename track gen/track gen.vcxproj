@@ -155,17 +155,20 @@
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="CSVConeFileWriter.cpp" />
+    <ClCompile Include="CSVTrackFileWriter.cpp" />
     <ClCompile Include="ISplineGenerator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="ShapeCollapseSplineGenerator.cpp" />
     <ClCompile Include="Spline.cpp" />
+    <ClCompile Include="UniformConeGenerator.cpp" />
     <ClCompile Include="XMLConeFileWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cone.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="CSVConeFileWriter.h" />
+    <ClInclude Include="CSVTrackFileWriter.h" />
     <ClInclude Include="Functions.inl" />
     <ClInclude Include="IConeGenerator.h" />
     <ClInclude Include="IFileWriter.h" />
@@ -177,6 +180,7 @@
     <ClInclude Include="ShapeCollapseSplineGenerator.h" />
     <ClInclude Include="Spline.h" />
     <ClInclude Include="SplineGenerators.h" />
+    <ClInclude Include="UniformConeGenerator.h" />
     <ClInclude Include="WaveFunctionCollapseSplineGenerator.h" />
     <ClInclude Include="XMLConeFileWriter.h" />
   </ItemGroup>

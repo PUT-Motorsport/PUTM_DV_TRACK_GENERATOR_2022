@@ -18,13 +18,13 @@ void fw::close()
 	xml_file << "<Cones>\n";
 
 	xml_file << "\t<Blue>\n";
-	for (auto cone : right_cones)
+	for (auto cone : left_cones)
 	{
 		xml_file << "\t\t<Cone x = \"" << std::to_string(cone.pos.x) << "\" y = \"" << std::to_string(cone.pos.y) << "\"/>\n";
 	}
 	xml_file << "\t<Right>\n";
 	xml_file << "\t<Yellow>\n";
-	for (auto cone : left_cones)
+	for (auto cone : right_cones)
 	{
 		xml_file << "\t\t<Cone x = \"" << std::to_string(cone.pos.x) << "\" y = \"" << std::to_string(cone.pos.y) << "\"/>\n";
 	}
@@ -35,30 +35,30 @@ void fw::close()
 	xml_file.close();
 }
 
-void fw::write(Cone* data)
+void fw::write(Cone data)
 {
-	switch (data->type)
+	switch (data.type)
 	{
 		case Type::Right:
-			right_cones.push_back(*data);
+			right_cones.push_back(data);
 			break;
 		case Type::Left:
-			left_cones.push_back(*data);
+			left_cones.push_back(data);
 			break;
 	}
 }
 
-void fw::writeMultiple(std::vector<Cone*> data)
+void fw::writeMultiple(std::vector < Cone > data)
 {
 	for (int i = 0; i < data.size(); i++) write(data[i]);
 }
 
 void fw::write(void* data)
 {
-	write((Cone*)data);
+	write(*(Cone*)data);
 }
 
 void fw::writeMultiple(std::vector<void*> data)
 {
-	for (int i = 0; i < data.size(); i++) write((Cone*)data[i]);
+	for (auto d : data) write(d);
 }

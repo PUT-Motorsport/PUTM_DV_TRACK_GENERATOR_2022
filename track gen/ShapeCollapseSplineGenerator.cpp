@@ -117,7 +117,7 @@ void sc::firstShapeFilter()
 		auto dist = distance(track[i], shape_center);
 		if (dist > max_distance) max_distance = dist;
 
-		costs[i] = { &track[i], dist, track.getGradient(i), 0.f, 0.f };
+		costs[i] = { &track[i], dist, track.getGradient(size_t(i)), 0.f, 0.f };
 	}
 	for (int i = 0; i < costs.size(); i++)
 	{

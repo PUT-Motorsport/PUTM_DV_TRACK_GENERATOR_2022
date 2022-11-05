@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "Cone.h"
+
 class IFileWriter
 {
 	public:
@@ -12,6 +14,5 @@ class IFileWriter
 		virtual void close() = 0;
 		virtual void write(void* data) = 0;
 		virtual void writeMultiple(std::vector < void* > data) = 0;
-
 		virtual ~IFileWriter() = default;
 };

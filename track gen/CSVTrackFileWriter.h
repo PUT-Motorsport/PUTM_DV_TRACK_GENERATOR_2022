@@ -1,18 +1,18 @@
 #pragma once
 
 #include "IFileWriter.h"
+#include "Spline.h"
 
-#include <string>
-#include <vector>
 #include <fstream>
+#include <vector>
 
-class CSVConeFileWriter : public IFileWriter
+class CSVTrackFileWriter : public IFileWriter
 {
 	public:
 		void open(std::string file_name) override;
 		void close() override;
-		void write(Cone cone);
-		void writeMultiple(std::vector < Cone > data);
+		void write(Spline spline);
+		//void writeMultiple(std::vector < Cone > data);
 	protected:
 		void write(void* data) override;
 		void writeMultiple(std::vector < void* > data) override;

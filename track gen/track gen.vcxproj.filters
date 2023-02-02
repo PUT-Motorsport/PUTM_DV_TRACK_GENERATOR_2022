@@ -136,16 +136,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="config.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="DataModels.inl">
       <Filter>Header Files\Models</Filter>
     </None>
     <None Include="EnumWrapper.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="openal32.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sfml-audio-2.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sfml-graphics-2.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sfml-network-2.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="sfml-system-2.dll">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="config.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

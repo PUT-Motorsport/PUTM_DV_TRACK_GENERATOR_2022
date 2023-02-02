@@ -425,6 +425,21 @@ sf::Vector2f Spline::getGradientVector(size_t index, float t) const
 	return { tx, ty };
 }
 
+sf::Vector2f Spline::getInflexionVector(size_t index, float t) const
+{
+	auto [a, b, c, d] = getSegment(index);
+
+	float q1 = -6.f * t + 4;
+	float q2 = 18.f * t - 10;
+	float q3 = -18.f * t + 8;
+	float q4 = 6 * t - 2;
+
+	float tx = 0.5f * (a.x * q1 + b.x * q2 + c.x * q3 + d.x * q4);
+	float ty = 0.5f * (a.y * q1 + b.y * q2 + c.y * q3 + d.y * q4);
+
+	return { tx, ty };
+}
+
 sf::Vector2f Spline::getCenter()
 {
 	sf::Vector2f center;
@@ -468,6 +483,12 @@ float Spline::getGradient(size_t index) const
 float Spline::getGradient(size_t index, float t) const
 {
 	auto vec = getGradientVector(index, t);
+	return atan2f(-vec.y, vec.x);
+}
+
+float Spline::getInflexion(size_t index, float t) const
+{
+	auto vec = getInflexionVector(index, t);
 	return atan2f(-vec.y, vec.x);
 }
 

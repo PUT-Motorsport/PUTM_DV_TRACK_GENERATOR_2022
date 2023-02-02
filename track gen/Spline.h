@@ -64,6 +64,7 @@ class Spline : public sf::Drawable
 
 		float getGradient(size_t index) const;
 		float getGradient(size_t index, float t) const;
+		float getInflexion(size_t index, float t) const;
 		float getLenght();
 
 		size_t getPivotPointsCount();
@@ -75,6 +76,7 @@ class Spline : public sf::Drawable
 		sf::Vector2f getPoint(size_t index, float t) const;
 		sf::Vector2f getGradientVector(size_t index) const;
 		sf::Vector2f getGradientVector(size_t index, float t) const;
+		sf::Vector2f getInflexionVector(size_t index, float t) const;
 		sf::Vector2f getCenter();
 
 		sf::Vector2f& operator [] (size_t index);

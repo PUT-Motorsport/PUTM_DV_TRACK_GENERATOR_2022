@@ -23,6 +23,10 @@ class ShapeCollapseSplineGenerator : public ISplineGenerator
 		uint32_t pivot_point_count_min;
 
 		float pivot_point_collapse_chanse;
+		float min_angle;
+		float max_rms_flex;
+		float e_e_trigger;
+		float repel_ratio;
 
 		void generateShape();
 		void collapseShape();

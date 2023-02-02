@@ -12,13 +12,18 @@ sc::ShapeCollapseSplineGenerator(std::function<sf::Vector2f(sf::Vector2f)> shape
 {
 	pivot_point_count_max = atoi(Config::get("SplinePivotPointCountMax").c_str());
 	pivot_point_count_min = atoi(Config::get("SplinePivotPointCountMin").c_str());
+
 	pivot_point_collapse_chanse = atof(Config::get("PivotPointCollapseChance").c_str());
+	min_angle = toRad(atof(Config::get("TrackMinAngle").c_str())); 
+	max_rms_flex = atof(Config::get("TrackMinAvgFlex").c_str());
 }
 
 void sc::generateFullTrack()
 {
 	generateShape();
 	collapseShape();
+	firstShapeFilter();
+	//firstShapeFilter();
 }
 
 void sc::stepTrackGeneration()
@@ -60,16 +65,13 @@ void sc::collapseShape()
 	{
 		//determine
 		float chance = RandomGenerator::random<float>(0.f, 1.f);
-		bool collapse = chance < collapse_chance;
 
 		//collapse
-		if (collapse)
+		if (chance < collapse_chance)
 		{
 			float len = distance(shape_center, pivot);
-			float rand_len = RandomGenerator::random<float>(len / 3.f, len * 2.f / 3.f);
+			float rand_len = RandomGenerator::random<float>(-len * 2.f / 3.f, len * 2.f / 3.f);
 			pivot += direction(shape_center - pivot) * rand_len;
-
-			collapse_chance *= 0.5f;
 		}
 		else
 		{
@@ -80,55 +82,50 @@ void sc::collapseShape()
 
 void sc::firstShapeFilter()
 {
-	struct Set
+	for (size_t k = 0; k < track.getPivotPointsCount(); k++)
 	{
-		sf::Vector2f* pivot;
-		float lenght;
-		float gradient;
-		float global_cost;
-		float local_cost;/*
-		Set& operator = (const Set set)
+		size_t i[3] = { k, k + 1, k + 2 };
+		if (i[1] == track.getPivotPointsCount())
 		{
-			pivot = set.pivot;
-			lenght = set.lenght;
-			gradient = set.gradient;
-			global_cost = set.global_cost;
-			local_cost = set.local_cost;
-		}*/
-	};
+			i[1] = 0;
+			i[2] = 1;
+		}
+		else if (i[2] == track.getPivotPointsCount())
+		{
+			i[2] = 0;
+		}
 
-	float max_distance = 0.f;
-	//float coef_1 = 1.f;
-	//float coef_2 = 1.f;
+		sf::Vector2f points[3] = { track.getPivotPoint(i[0]), track.getPivotPoint(i[1]), track.getPivotPoint(i[2]) };
+		sf::Vector2f veca = points[1] - points[0];
+		sf::Vector2f vecb = points[1] - points[2];
+		float ang = abs(angle2(veca, vecb));
 
-	sf::Vector2f shape_center;
-
-	//pivot, lenght, gradient, global cost, local cost
-	std::vector < Set > costs;
-	costs.resize(track.getPivotPointsCount());
-
-	for (auto const pivot : track)
-	{
-		shape_center += pivot;
+		if (ang < min_angle)
+		{
+			track.removePivotPoint(i[1]);
+			k--;
+		}
 	}
-	shape_center /= float(track.getPivotPointsCount());
-	for (int i = 0; i < track.getPivotPointsCount(); i++)
-	{
-		auto dist = distance(track[i], shape_center);
-		if (dist > max_distance) max_distance = dist;
 
-		costs[i] = { &track[i], dist, track.getGradient(size_t(i)), 0.f, 0.f };
-	}
-	for (int i = 0; i < costs.size(); i++)
+	for (size_t k = 0; k < track.getPivotPointsCount(); k++)
 	{
-		int id = i - 1;
-		int ii = i + 1;
-
-		if (id == -1) id = id == costs.size() - 1;
-		if (ii == costs.size()) ii = 0;
-		auto& gcostf = costs[ii].global_cost;
-		auto& gcostb = costs[id].global_cost;
-		auto& [_, len, grad, gcost, lcost] = costs[i];
-		lcost = (abs(gcostf - gcost) + abs(gcostf - gcost)) * 0.5f;
+		float avg_inflexion = 0.f;
+		for (float t = 0.f; t < 1.f; t += 0.05)
+		{
+			//avg_inflexion += sq(track.getInflexion(k, t));
+			avg_inflexion += track.getInflexion(k, t);
+		}
+		avg_inflexion / (1.f / 0.05f);
+		float rms_inflexion = avg_inflexion;//sqrtf(avg_inflexion);
+		if (rms_inflexion < max_rms_flex)
+		{
+			track.removePivotPoint(k);
+		}
 	}
+
+}
+
+void sc::smoothShape()
+{
+
 }

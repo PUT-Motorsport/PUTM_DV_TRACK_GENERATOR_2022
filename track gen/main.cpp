@@ -32,6 +32,7 @@ const float circleR = 50.f;
 
 sf::Vector2f meas_pt1 = { 0.f, 0.f };
 sf::Vector2f meas_pt2 = { 0.f, 0.f };
+sf::Vector2f angle_pts[3] = { { 0.f, 0.f }, { 0.f, 0.f }, { 0.f, 0.f } };
 
 ISplineGenerator* gen = new ShapeCollapseSplineGenerator(genCircle);//genRectangle genCircle
 
@@ -187,7 +188,7 @@ int main()
 
             window.draw(line, 2, sf::Lines);
         }
-        if (measure)
+        if (true)//(measure)
         {
             sf::Vertex line[] =
             {
@@ -195,8 +196,13 @@ int main()
                 sf::Vertex(meas_pt2)
             };
             window.draw(line, 2, sf::Lines);
-            //system("clc");
-            std::cout << "\r" << distance(meas_pt1, meas_pt2) << "              ";
+            system("cls");
+            std::cout << distance(meas_pt1, meas_pt2) << "\n";
+            sf::Vector2f veca = angle_pts[1] - angle_pts[0];
+            sf::Vector2f vecb = angle_pts[1] - angle_pts[2];
+            float a = toDeg(angle2(veca, vecb));
+
+            std::cout << a;
         }
 
         window.display();
@@ -357,6 +363,55 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
         {
             meas_pt1 = { 0.f, 0.f };
             meas_pt2 = { 0.f, 0.f };
+        }
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+
+    key = sf::Keyboard::A;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+
+        auto pts = spline.getPointRepresenation();
+        auto cords = w->mapPixelToCoords(sf::Mouse::getPosition(*w));
+        for (auto pt : pts)
+        {
+            if (distance(pt.position, cords) < 5.f)
+            {
+                angle_pts[0] = pt.position;
+            }
+        }
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+    key = sf::Keyboard::S;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+
+        auto pts = spline.getPointRepresenation();
+        auto cords = w->mapPixelToCoords(sf::Mouse::getPosition(*w));
+        for (auto pt : pts)
+        {
+            if (distance(pt.position, cords) < 5.f)
+            {
+                angle_pts[1] = pt.position;
+            }
+        }
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+    key = sf::Keyboard::D;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+
+        auto pts = spline.getPointRepresenation();
+        auto cords = w->mapPixelToCoords(sf::Mouse::getPosition(*w));
+        for (auto pt : pts)
+        {
+            if (distance(pt.position, cords) < 5.f)
+            {
+                angle_pts[2] = pt.position;
+            }
         }
     }
     else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;

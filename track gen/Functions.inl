@@ -40,6 +40,12 @@ inline T dot(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 }
 
 template < class T >
+inline T det(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+{
+	return float(vec1.x * vec2.y - vec1.y * vec2.x);
+}
+
+template < class T >
 inline T dot(sf::Vector2<T> a, sf::Vector2<T> b, sf::Vector2<T> p)
 {
 	return float((p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x));
@@ -50,6 +56,16 @@ inline T angle(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 {
 	auto x = std::clamp(float(dot(vec1, vec2)) / (lenght(vec1) * lenght(vec2)), -1.f, 1.f);
 	return acosf(x);
+}
+
+template < class T >
+inline T angle2(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+{
+	//auto x = std::clamp(float(dot(vec1, vec2)) / (lenght(vec1) * lenght(vec2)), -1.f, 1.f);
+	//return acosf(x);
+	auto x = dot(vec1, vec2);
+	auto y = det(vec1, vec2);
+	return atan2f(y, x);
 }
 
 template <>
@@ -64,6 +80,11 @@ inline long double angle(sf::Vector2<long double> vec1, sf::Vector2<long double>
 inline constexpr float toRad(float angle)
 {
 	return angle * 0.01745329251994329576923690768489f;// / 180.f * M_PI;
+}
+
+inline constexpr float toDeg(float angle)
+{
+	return angle * 57.29577951308264;
 }
 
 template < class T >

@@ -72,8 +72,13 @@ TrackMinAngle = 20
 # the curv is too straight or too curved in both directions well
 # this var is mostly after the second since it can cose some problems
 
-TrackMinAvgFlex = 0.8
+TrackMinAvgFlex = 0.1
 
 #side by side edge to edge ratio
-PivotPointRepelTrigger = 3
-PivotPointRepel = 10;
+PivotPointRepelTrigger = 1
+PivotPointRepel = 5
+PivotPointReturnRatio = 1.5;
+
+######################################################################################################
+#How much checked field around a point shoud be valid relative to full vield
+SafeFieldPercent = 0.5

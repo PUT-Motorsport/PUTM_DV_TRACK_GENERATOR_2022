@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include</ExternalIncludePath>
-    <LibraryPath>D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\include</ExternalIncludePath>
+    <LibraryPath>I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
     <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
@@ -178,6 +178,7 @@
     <ClCompile Include="CSVTrackFileWriter.cpp" />
     <ClCompile Include="ISplineGenerator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PathFindingSplinegenerator.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="ShapeCollapseSplineGenerator.cpp" />
     <ClCompile Include="Spline.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="IFileWriter.h" />
     <ClInclude Include="ISplineGenerator.h" />
     <ClInclude Include="IScreen.h" />
+    <ClInclude Include="MutexWrap.h" />
     <ClInclude Include="PathFindingSplineGenerator.h" />
     <ClInclude Include="PerlinNoiseCollapseSplineGenerator.h" />
     <ClInclude Include="RandomGenerator.h" />

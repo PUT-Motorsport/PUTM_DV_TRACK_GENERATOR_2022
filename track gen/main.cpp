@@ -34,7 +34,7 @@ sf::Vector2f meas_pt1 = { 0.f, 0.f };
 sf::Vector2f meas_pt2 = { 0.f, 0.f };
 sf::Vector2f angle_pts[3] = { { 0.f, 0.f }, { 0.f, 0.f }, { 0.f, 0.f } };
 
-ISplineGenerator* gen = new ShapeCollapseSplineGenerator(genCircle);//genRectangle genCircle
+ISplineGenerator* gen = new PathFindingSplineGenerator();//ShapeCollapseSplineGenerator(genCircle);//genRectangle genCircle
 
 IConeGenerator* cone_gen = nullptr;// = new UniformConeGenerator;
 
@@ -328,6 +328,15 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
 
         cone_gen = new UniformConeGenerator(spline);
         cone_gen->generateAllCones();
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+
+    key = sf::Keyboard::F10;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+        pressed[key] = true;
+        gen->stepTrackGeneration();
+        spline = gen->getTrack();
     }
     else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
 

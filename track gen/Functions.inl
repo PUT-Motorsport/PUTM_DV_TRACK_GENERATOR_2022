@@ -138,6 +138,13 @@ sf::Vector2f direction(sf::Vector2<T> vec)
 	return vec / lenght(vec);
 }
 
+inline sf::Vector2f direction(float angle)
+{
+	float x = std::clamp(std::cosf(angle), -1.f, 1.f);
+	float y = std::clamp(std::sinf(angle), -1.f, 1.f);
+	return { x, y };
+}
+
 template < class T >
 bool overlap(sf::Vector2<T> a, sf::Vector2<T> b, float error)
 {
@@ -174,4 +181,41 @@ inline int sgnf(float x)
 	if (x > 0.f) return 1;
 	if (x < 0.f) return -1;
 	return 0;
+}
+
+inline bool onSegment(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r)
+{
+	if (q.x <= std::max(p.x, r.x) && q.x >= std::min(p.x, r.x) &&
+		q.y <= std::max(p.y, r.y) && q.y >= std::min(p.y, r.y))
+		return true;
+
+	return false;
+}
+
+inline int orientation(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r)
+{
+	int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+	if (val == 0) return 0;
+	return (val > 0) ? 1 : 2;
+}
+
+inline bool doIntersect(sf::Vector2f p1, sf::Vector2f q1, sf::Vector2f p2, sf::Vector2f q2)
+{
+	int o1 = orientation(p1, q1, p2);
+	int o2 = orientation(p1, q1, q2);
+	int o3 = orientation(p2, q2, p1);
+	int o4 = orientation(p2, q2, q1);
+
+	if (o1 != o2 && o3 != o4)
+		return true;
+
+	if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+	if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+	if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+	if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+	return false;
 }

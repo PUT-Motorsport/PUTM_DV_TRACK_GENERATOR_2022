@@ -16,7 +16,7 @@ class ShapeCollapseSplineGenerator : public ISplineGenerator
 		void generateFullTrack() override;
 		void stepTrackGeneration() override; 
 
-	private:
+	//private:
 		std::function<sf::Vector2f(sf::Vector2f)> shape_function = nullptr;
 
 		uint32_t pivot_point_count_max;
@@ -26,10 +26,14 @@ class ShapeCollapseSplineGenerator : public ISplineGenerator
 		float min_angle;
 		float max_rms_flex;
 		float e_e_trigger;
-		float repel_ratio;
+		float repel_force;
+		float return_ratio_coef;
 
 		void generateShape();
 		void collapseShape();
 		void firstShapeFilter();
+		void secondShapeFilter();
+		void thirdShapeFilter();
+		void fourthShapeFilter();
 		void smoothShape();
 };

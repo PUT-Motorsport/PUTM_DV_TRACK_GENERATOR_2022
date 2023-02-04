@@ -78,6 +78,9 @@
     <ClCompile Include="CSVTrackFileWriter.cpp">
       <Filter>Source Files\FileWriters</Filter>
     </ClCompile>
+    <ClCompile Include="PathFindingSplinegenerator.cpp">
+      <Filter>Source Files\SplineGenerators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h">
@@ -133,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="CSVTrackFileWriter.h">
       <Filter>Header Files\FileWriters</Filter>
+    </ClInclude>
+    <ClInclude Include="MutexWrap.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -88,6 +88,8 @@ class Spline : public sf::Drawable
 
 		std::vector < SplinePoint > getPointRepresenation();
 
+		std::array < sf::Vector2f, 4 > getSegment(size_t t) const;
+
 	private:	
 
 		//##############################################################################################
@@ -126,6 +128,4 @@ class Spline : public sf::Drawable
 		float vectorLenghtSum() const;
 
 		float aproximaionAlgorithm() const { return (this->*aproximaionAlgorithmPtr)(); }
-
-		std::array < sf::Vector2f, 4 > getSegment(size_t t) const;
 };

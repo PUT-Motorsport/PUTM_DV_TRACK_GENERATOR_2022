@@ -5,6 +5,7 @@
 #include <thread>
 #include <functional>
 #include <mutex>
+#include <exception>
 
 using pf = PathFindingSplineGenerator;
 
@@ -43,28 +44,30 @@ bool pf::isSafeField(size_t ind, float min_ang, float max_angle, std::vector < P
 
 pf::PathFindingSplineGenerator() : ISplineGenerator()
 {
-	bounding_box = { -100.f, -100.f, 200.f, 200.f };
+	//bounding_box = { -100.f, -100.f, 200.f, 200.f };
+	bounding_box = { -25.f, -25.f, 50.f, 50.f };
 	auto [x, y, w, h] = bounding_box;
 	bounding_points = { sf::Vector2f(x, y), sf::Vector2f(x, y + h), sf::Vector2f(x + w, y + h), sf::Vector2f(x + h, y) };
-	start_box = { 50.f, 50.f, 50.f, 50.f };
-	max_step_dist = 15.f;
-	min_step_dist = 8.f;
-	safe_dist = 5.f;
+	//start_box = { 50.f, 50.f, 50.f, 50.f };
+	start_box = { 0.f, 0.f, 10.f, 10.f };
+	max_step_dist = 5.f;
+	min_step_dist = 3.f;
+	safe_dist = 2.f;
 	angle_shift = toRad(60);
-	angle_step = 0.01f;
+	angle_change_speed_ratio = 100.f;
+	angle_step = angle_shift * 2.f / angle_change_speed_ratio;
 	timeout_max = 1000;
 	safe_field_ratio = 0.5;
-	max_parallel_threads = 10;
-	min_ratio_of_threads_completed = 0.6;
-	timeout_s = 15;
+	max_parallel_threads = 4;
+	min_ratio_of_threads_completed = 0.3;
+	thread_timeout = 15;
 	finished = false;
 }
 
 bool pf::check(std::vector < PathStruct >& build_path)
 {
-	bool ang = abs(angle2(build_path.back().p - build_path.front().p, build_path.back().p - build_path[build_path.size() - 2].p));
-	ang = 180 - ang;
-	if (distance(build_path.front().p, build_path.back().p) <= max_step_dist && ang <= angle_shift)
+	//bool ang = abs(angle2(build_path.back().p - build_path.front().p, build_path.back().p - build_path[build_path.size() - 2].p));
+	if (distance(build_path.front().p, build_path.back().p) <= max_step_dist)// && ang >= angle_shift * 2)
 	{
 		for (size_t i = 2; i < build_path.size() - 2; i++)
 		{
@@ -76,6 +79,15 @@ bool pf::check(std::vector < PathStruct >& build_path)
 		return true;
 	}
 	return false;
+}
+
+void pf::filter(std::vector < PathStruct >& build_path)
+{
+	auto dist1 = distance(build_path.front().p, (build_path.begin() + 1)->p);
+	auto dist2 = distance(build_path.front().p, build_path.back().p);
+	auto avg_dist = (dist1 + dist2) / 2.f;
+	auto dist = distance(build_path.back().p, (build_path.begin() + 1)->p);
+	if (dist <= dist1 || dist <= dist2) build_path.erase(build_path.begin());
 }
 
 void pf::proceed(std::vector < PathStruct >& build_path)
@@ -98,6 +110,7 @@ void pf::proceed(std::vector < PathStruct >& build_path)
 		{
 			do
 			{
+				if (ind == 0) throw std::exception::exception("ind < 0");
 				build_path.erase(build_path.end() - 1);
 				ind--;
 
@@ -153,27 +166,32 @@ void pf::proceed(std::vector < PathStruct >& build_path)
 
 void pf::generate(std::vector < PathStruct >& build_path, bool& exitThread, int& thread_finished)
 {
-	build_path.clear();
-
-	float tmpx = RandomGenerator::random(0.f, start_box.width) + start_box.left + bounding_box.left;
-	float tmpy = RandomGenerator::random(0.f, start_box.height) + start_box.top + bounding_box.top;
-
-	float ox = RandomGenerator::random(min_step_dist, max_step_dist);
-	float oy = RandomGenerator::random(min_step_dist, max_step_dist);
-
-	build_path.push_back({ { tmpx, tmpy }, false });
-	build_path.push_back({ { tmpx + ox, tmpy + oy }, false });
-	for (int i = 0; i < 10; i++)
+	try
 	{
-		proceed(build_path);
-	}
-	while (!check(build_path))
-	{
-		if (exitThread) return;
-		proceed(build_path);
-	}
+		build_path.clear();
 
-	thread_finished = 1;
+		float tmpx = RandomGenerator::random(0.f, start_box.width) + start_box.left + bounding_box.left;
+		float tmpy = RandomGenerator::random(0.f, start_box.height) + start_box.top + bounding_box.top;
+
+		float ox = RandomGenerator::random(min_step_dist, max_step_dist);
+		float oy = RandomGenerator::random(min_step_dist, max_step_dist);
+
+		build_path.push_back({ { tmpx, tmpy }, false });
+		build_path.push_back({ { tmpx + ox, tmpy + oy }, false });
+		for (int i = 0; i < 10; i++)
+		{
+			proceed(build_path);
+		}
+		while (!check(build_path))
+		{
+			if (exitThread) return;
+			proceed(build_path);
+		}
+		filter(build_path);
+
+		thread_finished = 1;
+	}
+	catch (...) { thread_finished = 2; }
 	//track = Spline(build, true);
 }
 
@@ -181,46 +199,59 @@ void pf::generateFullTrack()
 {
 	std::vector < std::vector < PathStruct > > build_paths;
 	//std::vector < bool > thread_exit_state;
-	bool thread_exit_state = false;
+	bool thread_exit_state;
 	std::vector < int > thread_state;
 	std::vector < std::thread > threads;
-
-	build_paths.resize(max_parallel_threads);
-	//thread_exit_state.resize(max_parallel_threads, false);
-	thread_state.resize(max_parallel_threads, 0);
-	threads.resize(max_parallel_threads);
-	for (size_t i = 0; i < max_parallel_threads; i++)
-	{
-		threads[i] = std::thread(&pf::generate, this, std::ref(build_paths[i]), std::ref(thread_exit_state), std::ref(thread_state[i]));
-	}
-
-	start = std::chrono::steady_clock::now();
-
+	bool ok = false;
 	int c = 0;
-	while (!thread_exit_state)
+	while (!ok)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		std::chrono::steady_clock::duration elapsed = std::chrono::steady_clock::now() - start;
-		auto e = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
-		if (e >= timeout_s)
+		thread_exit_state = false;
+		ok = true;
+		threads.clear();
+		build_paths.clear();
+		thread_state.clear();
+
+		build_paths.resize(max_parallel_threads);
+		threads.resize(max_parallel_threads);
+		thread_state.resize(max_parallel_threads, 0);
+
+		for (size_t i = 0; i < max_parallel_threads; i++)
 		{
-			thread_exit_state = true;
-			break;
+			threads[i] = std::thread(&pf::generate, this, std::ref(build_paths[i]), std::ref(thread_exit_state), std::ref(thread_state[i]));
 		}
-		c = 0;
-		for (auto state : thread_state) if (state == 1) c++; 
-		float r = float(c) / max_parallel_threads;
-		if (r >= min_ratio_of_threads_completed)
+
+		start = std::chrono::steady_clock::now();
+
+		while (!thread_exit_state)
 		{
-			thread_exit_state = true;
-			break;
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::chrono::steady_clock::duration elapsed = std::chrono::steady_clock::now() - start;
+			auto e = std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
+			if (e >= thread_timeout)
+			{
+				thread_exit_state = true;
+				break;
+			}
+			c = 0;
+			for (auto state : thread_state) if (state == 1) c++;
+			float r = float(c) / max_parallel_threads;
+			if (r >= min_ratio_of_threads_completed)
+			{
+				thread_exit_state = true;
+				break;
+			}
+		}
+
+		for (auto& thread : threads) thread.join();
+
+		c = 0;
+		for (auto state : thread_state) if (state == 1) c++;
+		if (c == 0)
+		{
+			ok = false;
 		}
 	}
-
-	for (auto& thread : threads) thread.join(); 
-
-	c = 0;
-	for (auto state : thread_state) if (state == 1) c++;
 
 	int rng = RandomGenerator::random(0, c - 1);
 	while (!thread_state[rng]) rng++;

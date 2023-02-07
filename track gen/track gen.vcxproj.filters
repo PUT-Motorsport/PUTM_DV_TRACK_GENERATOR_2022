@@ -78,7 +78,7 @@
     <ClCompile Include="CSVTrackFileWriter.cpp">
       <Filter>Source Files\FileWriters</Filter>
     </ClCompile>
-    <ClCompile Include="PathFindingSplinegenerator.cpp">
+    <ClCompile Include="PathFindingSplineGenerator.cpp">
       <Filter>Source Files\SplineGenerators</Filter>
     </ClCompile>
   </ItemGroup>

@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include</ExternalIncludePath>
-    <LibraryPath>D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;D:\pliki\SFML-2.5.1\include</ExternalIncludePath>
+    <LibraryPath>D:\pliki\SFML-2.5.1\lib;D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
     <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
@@ -82,13 +82,13 @@
     <LinkIncremental>false</LinkIncremental>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
-    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;D:\pliki\SFML-2.5.1\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>D:\pliki\SFML-2.5.1\lib;D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExternalIncludePath>I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\include</ExternalIncludePath>
-    <LibraryPath>I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\include</ExternalIncludePath>
+    <LibraryPath>D:\pliki\SFML-2.5.1\lib;I:\pliki\SFML-2.5.1-windows-vc15-64-bit\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
     <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
@@ -97,8 +97,8 @@
     <LinkIncremental>false</LinkIncremental>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
     <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
-    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\pliki\SFML-2.5.1\include;D:\pliki\SFML-2.5.1\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>D:\pliki\SFML-2.5.1\lib;D:\pliki\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -178,7 +178,7 @@
     <ClCompile Include="CSVTrackFileWriter.cpp" />
     <ClCompile Include="ISplineGenerator.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PathFindingSplinegenerator.cpp" />
+    <ClCompile Include="PathFindingSplineGenerator.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
     <ClCompile Include="ShapeCollapseSplineGenerator.cpp" />
     <ClCompile Include="Spline.cpp" />

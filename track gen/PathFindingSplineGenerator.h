@@ -24,6 +24,7 @@ class PathFindingSplineGenerator : public ISplineGenerator
 		void proceed(std::vector < PathStruct >& build_path);
 		//void check();
 		bool check(std::vector < PathStruct >& build_path);
+		void filter(std::vector < PathStruct >& build_path);
 
 		bool isSafeField(size_t ind, float min_ang, float max_angle, std::vector < PathStruct >& build_path);
 
@@ -40,12 +41,13 @@ class PathFindingSplineGenerator : public ISplineGenerator
 		float min_step_dist;
 		float safe_dist;
 		float angle_shift;
+		float angle_change_speed_ratio;
 		float angle_step;
 		float safe_field_ratio;
 		float min_ratio_of_threads_completed;
 
 		int timeout_max;
-		int timeout_s;
+		int thread_timeout;
 		int max_parallel_threads;
 
 		bool finished;

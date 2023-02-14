@@ -26,6 +26,13 @@ inline T distance(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 	return sqrt(float(sq(vec.x) + sq(vec.y)));
 }
 
+template < class T >
+inline T distSq(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
+{
+	auto vec = vec1 - vec2;
+	return float(sq(vec.x) + sq(vec.y));
+}
+
 template <>
 inline long double distance(sf::Vector2<long double> vec1, sf::Vector2<long double> vec2)
 {
@@ -59,13 +66,17 @@ inline T angle(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 }
 
 template < class T >
+inline sf::Vector2<T> polarToCartesian(T r, T angle)
+{
+	return { cos(angle) * r , -sin(angle) * r };
+}
+
+template < class T >
 inline T angle2(sf::Vector2<T> vec1, sf::Vector2<T> vec2)
 {
-	//auto x = std::clamp(float(dot(vec1, vec2)) / (lenght(vec1) * lenght(vec2)), -1.f, 1.f);
-	//return acosf(x);
 	auto x = dot(vec1, vec2);
 	auto y = det(vec1, vec2);
-	return atan2f(y, x);
+	return atan2f(-y, x);
 }
 
 template <>
@@ -151,6 +162,12 @@ bool overlap(sf::Vector2<T> a, sf::Vector2<T> b, float error)
 	return distance(a, b) <= error;
 }
 
+template < class T >
+inline float atanv2(sf::Vector2<T> vec)
+{
+	return atan2f(-vec.y, vec.x);
+}
+
 inline sf::Vector2f findThirdPoint(sf::Vector2f pos1, float grad1, sf::Vector2f pos2, float grad2)
 {
 	const auto min_angle = 2.f;
@@ -190,6 +207,13 @@ inline bool onSegment(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r)
 		return true;
 
 	return false;
+}
+
+template < class T >
+inline std::array < sf::Vector2<T>, 4 > rectToPoints(sf::Rect<T> rect)
+{
+	auto [x, y, w, h] = rect;
+	return { sf::Vector2<T>(x, y), sf::Vector2<T>(x + w, y), sf::Vector2<T>(x + w, y + h), sf::Vector2<T>(x, y + h) };
 }
 
 inline int orientation(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r)

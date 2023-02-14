@@ -12,7 +12,7 @@
 
 using sc = ShapeCollapseSplineGenerator;
 
-sc::ShapeCollapseSplineGenerator(std::function<sf::Vector2f(sf::Vector2f)> shape_function) : shape_function(shape_function) 
+sc::ShapeCollapseSplineGenerator(std::function<sf::Vector2f(sf::Vector2f)> shape_function) : shape_function(shape_function), ISplineGenerator(GeneratorType::ShapeCollapseGenerator)
 {
 	pivot_point_count_max = atoi(Config::get("SplinePivotPointCountMax").c_str());
 	pivot_point_count_min = atoi(Config::get("SplinePivotPointCountMin").c_str());

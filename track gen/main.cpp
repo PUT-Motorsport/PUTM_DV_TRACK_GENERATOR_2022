@@ -15,6 +15,10 @@
 #include "CSVTrackFileWriter.h"
 #include "UniformConeGenerator.h"
 
+#define DRAW_BD_BOXES 1
+#define DRAW_COL_BOXES 1
+#define CONSOLE_ACTIVE 0
+
 void mouseMovedAndRightClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos);
 void mouseMovedAndLeftClicked(sf::Event& const event, sf::RenderWindow& const window, sf::Vector2f prev_mouse_pos, sf::Vector2f mouse_pos, Spline& spline);
 void mouseWheelScrolled(sf::Event& const event, sf::RenderWindow& const window);
@@ -27,6 +31,14 @@ sf::Vector2f genRectangle(sf::Vector2f vec);
 bool measure = false;
 
 float total_zoom = 1.f;
+
+#if DRAW_BD_BOXES
+int draw_box = 0;
+#endif
+
+#if DRAW_COL_BOXES
+int draw_col = 0;
+#endif
 
 const float circleR = 50.f;
 
@@ -188,22 +200,95 @@ int main()
 
             window.draw(line, 2, sf::Lines);
         }
-        if (true)//(measure)
+#if CONSOLE_ACTIVE
+        sf::Vertex line[] =
         {
+            sf::Vertex(meas_pt1),
+            sf::Vertex(meas_pt2)
+        };
+        window.draw(line, 2, sf::Lines);
+        system("cls");
+        std::cout << distance(meas_pt1, meas_pt2) << "\n";
+        sf::Vector2f veca = angle_pts[1] - angle_pts[0];
+        sf::Vector2f vecb = angle_pts[1] - angle_pts[2];
+        float a = toDeg(angle2(veca, vecb));
+
+        std::cout << a;
+#endif
+#if DRAW_BD_BOXES 
+        auto color1 = sf::Color::Red;
+        auto [x, y, w, h] = spline.getSegmentBoundingBox(draw_box);
+
+        color1 = color1 == sf::Color::Red ? sf::Color::Green : sf::Color::Red;
+
+        sf::RectangleShape rect;
+        rect.setSize({ w, h });
+        rect.setPosition({ x, y });
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineThickness(0.25f);
+        rect.setOutlineColor(color1);
+        window.draw(rect);
+
+        if (gen->type == GeneratorType::PathFidingGenerator)
+        {
+            auto buff = (PathFindingSplineGenerator*)(gen);
+            auto color1 = sf::Color::Red;
+            auto [x, y, w, h] = buff->bounding_box;
+
+            sf::RectangleShape rect;
+            rect.setSize({ w, h });
+            rect.setPosition({ x, y });
+            rect.setFillColor(sf::Color::Transparent);
+            rect.setOutlineThickness(0.25f);
+            rect.setOutlineColor(color1);
+            window.draw(rect);
+
+            auto color2 = sf::Color::Green;
+            auto [xx, yy, ww, hh] = buff->start_box;
+
+            rect.setSize({ ww, hh });
+            rect.setPosition({ xx, yy });
+            rect.setFillColor(sf::Color::Transparent);
+            rect.setOutlineThickness(0.25f);
+            rect.setOutlineColor(color2);
+            window.draw(rect);
+
+            for (auto o : buff->obstacles)
+            {
+                auto color1 = sf::Color::Magenta;
+                auto [x, y, w, h] = o;
+
+                sf::RectangleShape rect;
+                rect.setSize({ w, h });
+                rect.setPosition({ x, y });
+                rect.setFillColor(sf::Color::Transparent);
+                rect.setOutlineThickness(0.25f);
+                rect.setOutlineColor(color1);
+                window.draw(rect);
+            }
+        }
+#endif
+#if DRAW_COL_BOXES
+        auto color2 = sf::Color::Green;
+        auto points = spline.getSegmentCollisionBox(draw_box);
+
+        color2 = color2 == sf::Color::Red ? sf::Color::Green : sf::Color::Red;
+
+        for (auto p1 = points.begin(); p1 != points.end(); p1++)
+        {
+            auto p2 = p1 + 1;
+            if (p2 == points.end()) p2 = points.begin();
+
             sf::Vertex line[] =
             {
-                sf::Vertex(meas_pt1),
-                sf::Vertex(meas_pt2)
+                sf::Vertex(*p1, color2),
+                sf::Vertex(*p2, color2)
             };
-            window.draw(line, 2, sf::Lines);
-            system("cls");
-            std::cout << distance(meas_pt1, meas_pt2) << "\n";
-            sf::Vector2f veca = angle_pts[1] - angle_pts[0];
-            sf::Vector2f vecb = angle_pts[1] - angle_pts[2];
-            float a = toDeg(angle2(veca, vecb));
 
-            std::cout << a;
+            window.draw(line, 2, sf::Lines);
         }
+
+#endif
 
         window.display();
     }
@@ -286,6 +371,8 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
     else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::F4) && pressed[sf::Keyboard::F4]) pressed[sf::Keyboard::F4] = false;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::F5) && !pressed[sf::Keyboard::F5])
     {
+        //delete gen;
+        //gen = new PathFindingSplineGenerator();
         gen->generateFullTrack();
         spline = gen->getTrack();
         pressed[sf::Keyboard::F5] = true;
@@ -424,6 +511,35 @@ void keyPressedManageSplineOptions(sf::Event& const event, Spline& spline)
         }
     }
     else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+
+#if DRAW_BD_BOXES || DRAW_COL_BOXES
+    key = sf::Keyboard::Right;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+#if DRAW_BD_BOXES
+        draw_box++;
+        if (draw_box == spline.size()) draw_box = 0;
+#endif
+#if DRAW_COL_BOXES
+        draw_col++;
+        if (draw_col == spline.size()) draw_col = 0;
+#endif
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+    key = sf::Keyboard::Left;
+    if (sf::Keyboard::isKeyPressed(key) && !pressed[key])
+    {
+#if DRAW_BD_BOXES
+        draw_box--;
+        if (draw_box == -1) draw_box = spline.size() - 1;
+#endif
+#if DRAW_COL_BOXES
+        draw_col--;
+        if (draw_col == -1) draw_col = spline.size() - 1;
+#endif
+    }
+    else if (!sf::Keyboard::isKeyPressed(key) && pressed[key]) pressed[key] = false;
+#endif
 }
 
 sf::Vector2f genCircle(sf::Vector2f vec)

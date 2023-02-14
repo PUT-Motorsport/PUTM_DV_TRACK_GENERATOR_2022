@@ -5,10 +5,15 @@
 #include "Cone.h"
 #include "Spline.h"
 
+enum class GeneratorType
+{
+	PathFidingGenerator,
+	ShapeCollapseGenerator
+};
+
 class ISplineGenerator
 {
 	public:
-		ISplineGenerator();
 
 		virtual void generateFullTrack() = 0;
 		virtual void stepTrackGeneration() = 0;
@@ -19,7 +24,11 @@ class ISplineGenerator
 
 		virtual ~ISplineGenerator() = default;
 
+		const GeneratorType type;
+
 	protected:
+		ISplineGenerator(GeneratorType type);
+
 		bool finished_track_generation = false;
 
 		int step = 0;

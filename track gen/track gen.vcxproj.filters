@@ -98,13 +98,7 @@
     <ClInclude Include="Spline.h">
       <Filter>Header Files\Spline</Filter>
     </ClInclude>
-    <ClInclude Include="WaveFunctionCollapseSplineGenerator.h">
-      <Filter>Header Files\SplineGenerators</Filter>
-    </ClInclude>
     <ClInclude Include="PathFindingSplineGenerator.h">
-      <Filter>Header Files\SplineGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="PerlinNoiseCollapseSplineGenerator.h">
       <Filter>Header Files\SplineGenerators</Filter>
     </ClInclude>
     <ClInclude Include="IConeGenerator.h">
@@ -139,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="MutexWrap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GridPathFidingSplineGenerator.h">
+      <Filter>Header Files\SplineGenerators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

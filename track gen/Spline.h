@@ -26,6 +26,7 @@ struct SplinePoint
 	sf::Vector2f position;
 	sf::Vector2f gradient_vector;
 	float gradient;
+	size_t parent;
 };
 
 class Spline : public sf::Drawable
@@ -59,6 +60,12 @@ class Spline : public sf::Drawable
 		void optimize();
 		void segment() const;
 
+		void erase(std::vector < sf::Vector2f >::iterator where);
+		void push_back(sf::Vector2f& val);
+		void erase_last();
+
+		bool segmentsCollide(size_t index1, size_t index2);
+
 		int mouseEnteredPivotPoint(sf::Vector2f mouse_pos);
 		int mouseEnteredPivotPoint(sf::Vector2f mouse_pos, bool highlight);
 
@@ -66,10 +73,12 @@ class Spline : public sf::Drawable
 		float getGradient(size_t index, float t) const;
 		float getInflexion(size_t index, float t) const;
 		float getLenght();
+		float solveSegmentsClosestPoint(size_t index, sf::Vector2f point);
 
 		size_t getPivotPointsCount();
 		size_t getPointsCount();
 		size_t getT() const;
+		size_t size() const;
 
 		sf::Vector2f getPivotPoint(size_t index) const;
 		sf::Vector2f getPoint(size_t index) const;
@@ -80,17 +89,24 @@ class Spline : public sf::Drawable
 		sf::Vector2f getCenter();
 
 		sf::Vector2f& operator [] (size_t index);
+		sf::Vector2f& front();
+		sf::Vector2f& back();
+
+		std::pair < float, float > solveGradientForIndex(size_t index);
+
+		sf::FloatRect getSegmentBoundingBox(size_t index);
 
 		std::vector < sf::Vector2f >::iterator begin();
 		std::vector < sf::Vector2f >::iterator end();
 
 		std::vector < sf::Vector2f > getPivotPoints();
+		std::vector < sf::Vector2f > getSegmentCollisionBox(size_t index);
 
 		std::vector < SplinePoint > getPointRepresenation();
 
 		std::array < sf::Vector2f, 4 > getSegment(size_t t) const;
 
-	private:	
+	//private:	
 
 		//##############################################################################################
 		//std::function<void()> segmentingAlgorithm;
@@ -108,7 +124,8 @@ class Spline : public sf::Drawable
 
 		float max_gradient;
 		float optimization_error;
-		float width = 3.f;
+		float width;
+		float bd_box_offset;
 
 		std::vector < sf::Vector2f > pivot_points;
 
